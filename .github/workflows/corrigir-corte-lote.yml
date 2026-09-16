@@ -1,0 +1,85 @@
+name: Corrigir corte do lote
+on:
+  push:
+    paths:
+      - '.github/workflows/corrigir-corte-lote.yml'
+permissions:
+  contents: write
+jobs:
+  corrigir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Corrigir alinhamento e validar
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          css=Path('label-sizes.css')
+          s=css.read_text()
+          assert 'html[data-label-size="40x30"] .print-copy .label-data { max-width:100% !important; overflow:hidden !important; }' in s
+          s+='''
+          /* v1.1.10: centralizar o conjunto na area real da etiqueta.
+             O deslocamento antigo somava-se ao centro e cortava o lote.
+             A largura da linha agora e calculada pelo texto, nao pelo container. */
+          @media print {
+            html[data-label-size="40x30"] .print-copy {
+              padding: 1mm !important;
+              align-items: center !important;
+              overflow: hidden !important;
+            }
+            html[data-label-size="40x30"] .print-copy .label-data {
+              position: relative !important;
+              left: 0 !important;
+              transform: translateX(1mm) !important;
+              width: 36mm !important;
+              min-width: 0 !important;
+              max-width: 36mm !important;
+              overflow: visible !important;
+              box-sizing: border-box !important;
+              text-align: center !important;
+            }
+            html[data-label-size="40x30"] .print-copy .label-lot,
+            html[data-label-size="40x30"] .print-copy .lot-value-two-lines {
+              width: 100% !important;
+              min-width: 0 !important;
+              max-width: 100% !important;
+              overflow: visible !important;
+              text-align: center !important;
+            }
+            html[data-label-size="40x30"] .print-copy .lot-line1 {
+              display: block !important;
+              width: 100% !important;
+              max-width: 100% !important;
+              min-width: 0 !important;
+              overflow: visible !important;
+              white-space: nowrap !important;
+              text-align: center !important;
+              font-size: min(var(--lot-value-font-print), 18pt) !important;
+              letter-spacing: -0.35pt !important;
+            }
+            html[data-label-size="40x30"] .print-copy .print-qr {
+              left: 0 !important;
+              transform: translateX(1mm) !important;
+              align-self: center !important;
+              overflow: visible !important;
+            }
+          }
+          '''
+          css.write_text(s)
+          html=Path('index.html'); s=html.read_text(); assert '1.1.8</span>' in s
+          html.write_text(s.replace('1.1.8</span>','1.1.10</span>',1))
+          js=Path('app.js'); s=js.read_text(); assert "const APP_VERSION = '1.1.8';" in s
+          js.write_text(s.replace("const APP_VERSION = '1.1.8';","const APP_VERSION = '1.1.10';",1))
+          Path('version.json').write_text('{\n  "version": "1.1.10"\n}\n')
+          sw=Path('sw.js'); s=sw.read_text(); import re
+          s,n=re.subn(r"(CACHE_NAME\s*=\s*['\"])[^'\"]+",r'\g<1>eme-etiqueta-v1.1.10',s,count=1)
+          if n: sw.write_text(s)
+          PY
+          node --check app.js
+          node --check calibracao.js
+          grep -q 'v1.1.10: centralizar' label-sizes.css
+          git add app.js index.html label-sizes.css version.json sw.js
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'fix: centralizar lote sem recorte v1.1.10'
+          git push origin HEAD:main
