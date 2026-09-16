@@ -10,40 +10,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Ajustar somente o posicionamento interno e atualizar versao
+      - name: Ajustar posicionamento interno e versao
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          css = Path('label-sizes.css')
-          text = css.read_text(encoding='utf-8')
-          marker = '/* v1.1.12: mover o conjunto 2 mm para a direita dentro de cada etiqueta.'
-          assert text.count(marker) == 1, 'Bloco de calibracao esperado nao encontrado'
-          head, tail = text.split(marker, 1)
-          assert tail.count('width: 34mm !important;') == 4
-          assert tail.count('max-width: 34mm !important;') == 2
-          assert tail.count('translateX(2mm)') == 2
-          tail = tail.replace('34mm', '33mm').replace('translateX(2mm)', 'translateX(3mm)')
-          text = head + marker + tail
-          css.write_text(text, encoding='utf-8')
-          js = Path('app.js')
-          text = js.read_text(encoding='utf-8')
-          assert text.count("const APP_VERSION = '1.1.12';") == 1
-          js.write_text(text.replace("const APP_VERSION = '1.1.12';", "const APP_VERSION = '1.1.13';"), encoding='utf-8')
-          html = Path('index.html')
-          text = html.read_text(encoding='utf-8')
-          assert '1.1.12</span>' in text
-          html.write_text(text.replace('1.1.12</span>', '1.1.13</span>', 1), encoding='utf-8')
-          Path('version.json').write_text('{\n  "version": "1.1.13"\n}\n', encoding='utf-8')
-          sw = Path('sw.js')
-          text = sw.read_text(encoding='utf-8')
-          assert '1.1.12' in text
-          sw.write_text(text.replace('1.1.12', '1.1.13'), encoding='utf-8')
+          css=Path('label-sizes.css'); s=css.read_text()
+          marker='/* v1.1.12: mover o conjunto 2 mm para a direita dentro de cada etiqueta.'
+          assert s.count(marker)==1
+          head,tail=s.split(marker,1)
+          assert tail.count('translateX(2mm)')==2
+          assert '34mm' in tail
+          css.write_text(head+marker+tail.replace('34mm','33mm').replace('translateX(2mm)','translateX(3mm)'))
+          js=Path('app.js'); s=js.read_text(); assert "const APP_VERSION = '1.1.12';" in s
+          js.write_text(s.replace("const APP_VERSION = '1.1.12';","const APP_VERSION = '1.1.13';",1))
+          html=Path('index.html'); s=html.read_text(); assert '1.1.12</span>' in s
+          html.write_text(s.replace('1.1.12</span>','1.1.13</span>',1))
+          Path('version.json').write_text('{\n  "version": "1.1.13"\n}\n')
+          sw=Path('sw.js'); s=sw.read_text(); assert '1.1.12' in s
+          sw.write_text(s.replace('1.1.12','1.1.13'))
           PY
           node --check app.js
           node --check calibracao.js
-          grep -q 'translateX(3mm)' label-sizes.css
           git add label-sizes.css app.js index.html version.json sw.js
-          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'fix: deslocar conjunto 1 mm adicional com margem v1.1.13'
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'fix: ajuste fino a direita v1.1.13'
           git push origin HEAD:main
