@@ -65,3 +65,50 @@
  .screen-label .label-data, .screen-label .qr-code { position:relative; left:var(--label-offset-preview, 0px); }
  .screen-label .qr-code canvas { transform:scale(var(--matrix-scale, 1)); transform-origin:center; }
 }
+
+/* v1.1.10: centralizar o conjunto na area real da etiqueta.
+   O deslocamento antigo somava-se ao centro e cortava o lote.
+   A largura da linha agora e calculada pelo texto, nao pelo container. */
+@media print {
+  html[data-label-size="40x30"] .print-copy {
+    padding: 1mm !important;
+    align-items: center !important;
+    overflow: hidden !important;
+  }
+  html[data-label-size="40x30"] .print-copy .label-data {
+    position: relative !important;
+    left: 0 !important;
+    transform: translateX(1mm) !important;
+    width: 36mm !important;
+    min-width: 0 !important;
+    max-width: 36mm !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+  }
+  html[data-label-size="40x30"] .print-copy .label-lot,
+  html[data-label-size="40x30"] .print-copy .lot-value-two-lines {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    text-align: center !important;
+  }
+  html[data-label-size="40x30"] .print-copy .lot-line1 {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    font-size: min(var(--lot-value-font-print), 18pt) !important;
+    letter-spacing: -0.35pt !important;
+  }
+  html[data-label-size="40x30"] .print-copy .print-qr {
+    left: 0 !important;
+    transform: translateX(1mm) !important;
+    align-self: center !important;
+    overflow: visible !important;
+  }
+}
