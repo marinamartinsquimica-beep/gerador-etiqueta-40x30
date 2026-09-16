@@ -1,0 +1,35 @@
+/* v1.1.16: restaurar dimensoes fisicas anteriores do Data Matrix.
+   Nao alterar fontes, deslocamento, papel ou disposicao das etiquetas. */
+@media print {
+  html[data-label-size="40x30"] .print-copy .print-qr,
+  html[data-label-size="40x30"] .print-copy .print-qr canvas {
+    width: 25mm !important;
+    height: 10mm !important;
+    min-width: 25mm !important;
+    min-height: 10mm !important;
+    max-width: 25mm !important;
+    max-height: 10mm !important;
+    flex-basis: auto !important;
+    transform: none !important;
+    object-fit: fill !important;
+  }
+  html[data-label-size="40x30"] .print-copy .print-qr {
+    transform: translateX(3.5mm) !important;
+  }
+}
+/* A previa e apenas uma representacao reduzida; nao interfere na impressao. */
+@media screen {
+  html[data-label-size="40x30"] .screen-label {
+    zoom: .65;
+  }
+  html[data-label-size="40x30"] .screen-label .qr-code,
+  html[data-label-size="40x30"] .screen-label .qr-code canvas {
+    width: 250px !important;
+    min-width: 250px !important;
+    max-width: 250px !important;
+    height: 100px !important;
+    min-height: 100px !important;
+    max-height: 100px !important;
+    flex-basis: 100px !important;
+  }
+}
