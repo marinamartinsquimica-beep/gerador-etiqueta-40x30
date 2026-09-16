@@ -33,3 +33,87 @@
     flex-basis: 106px !important;
   }
 }
+/* Correção exclusiva da prévia 40x30: conteúdo centralizado, legível e sem recorte.
+   Não modifica @media print, Data Matrix gerado nem dimensões físicas. */
+@media screen {
+  html[data-label-size="40x30"] .label-card {
+    overflow-x: auto !important;
+    justify-items: center !important;
+  }
+  html[data-label-size="40x30"] .screen-label {
+    zoom: 1 !important;
+    width: min(400px, 100%) !important;
+    min-width: 0 !important;
+    max-width: 400px !important;
+    height: auto !important;
+    min-height: 300px !important;
+    padding: 18px 12px !important;
+    gap: 7px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+  }
+  html[data-label-size="40x30"] .screen-label .label-data {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    left: auto !important;
+    transform: none !important;
+    text-align: center !important;
+    overflow: visible !important;
+  }
+  html[data-label-size="40x30"] .screen-label .label-sku,
+  html[data-label-size="40x30"] .screen-label .label-lot,
+  html[data-label-size="40x30"] .screen-label .lot-value-two-lines,
+  html[data-label-size="40x30"] .screen-label .lot-line1 {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    text-align: center !important;
+  }
+  html[data-label-size="40x30"] .screen-label .label-sku strong {
+    font-size: clamp(26px, 8vw, 43px) !important;
+    line-height: 1.05 !important;
+    overflow-wrap: anywhere !important;
+  }
+  html[data-label-size="40x30"] .screen-label .lot-line1 {
+    font-size: clamp(24px, 7vw, 39px) !important;
+    line-height: 1.1 !important;
+    letter-spacing: -0.6px !important;
+    white-space: nowrap !important;
+    transform: scaleX(.82) !important;
+    transform-origin: center !important;
+  }
+  html[data-label-size="40x30"] .screen-label .qr-code {
+    width: min(265px, 100%) !important;
+    min-width: 0 !important;
+    max-width: 265px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    flex: 0 0 auto !important;
+    align-self: center !important;
+    left: auto !important;
+    transform: none !important;
+    overflow: visible !important;
+  }
+  html[data-label-size="40x30"] .screen-label .qr-code canvas {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 265px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    aspect-ratio: 2.5 !important;
+    margin: 0 auto !important;
+    transform: none !important;
+    image-rendering: pixelated !important;
+  }
+}
