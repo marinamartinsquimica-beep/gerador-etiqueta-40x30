@@ -25,7 +25,7 @@ jobs:
           git -C /tmp/gerador-base fetch --quiet --depth 1 origin f6eccb388c8def43c6fdb031923c59e2c2f364b8
           git -C /tmp/gerador-base checkout --quiet f6eccb388c8def43c6fdb031923c59e2c2f364b8
           rsync -a --exclude=.git --exclude=.github /tmp/gerador-base/ ./
-          git apply .github/patches/label-sizes.patch
+          git apply --recount .github/patches/label-sizes.patch
           cp .github/assets/label-sizes.css label-sizes.css
           python3 - <<'PY'
           from pathlib import Path
@@ -37,13 +37,6 @@ jobs:
           text = html.read_text(encoding='utf-8')
           assert '1.1.5-teste' in text
           text = text.replace('1.1.5-teste', '1.1.5')
-          old = '''<script>
-            (function () {
-              var version = document.querySelector('#app-version');
-              if (version) version.textContent = '1.1.4';
-              if (window.PalletLabel) window.PalletLabel.APP_VERSION = '1.1.4';
-            }());
-          </script>'''
           import re
           text, n = re.subn(r'<script>\s*\(function \(\) \{\s*var version = document\.querySelector\(\x27#app-version\x27\);\s*if \(version\) version\.textContent = \x271\.1\.4\x27;\s*if \(window\.PalletLabel\) window\.PalletLabel\.APP_VERSION = \x271\.1\.4\x27;\s*\}\(\)\);\s*</script>', '', text)
           assert n == 1, 'Trecho antigo que sobrescreve versão não encontrado'
