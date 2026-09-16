@@ -19,20 +19,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -f .github/patches/label-sizes.patch
+          test -f .github/patches/apply.py
           test -f .github/assets/label-sizes.css
           git clone --quiet --depth 1 https://github.com/marinamartinsquimica-beep/gerador-etiqueta-qr.git /tmp/gerador-base
           git -C /tmp/gerador-base fetch --quiet --depth 1 origin f6eccb388c8def43c6fdb031923c59e2c2f364b8
           git -C /tmp/gerador-base checkout --quiet f6eccb388c8def43c6fdb031923c59e2c2f364b8
           rsync -a --exclude=.git --exclude=.github /tmp/gerador-base/ ./
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path('.github/patches/label-sizes.patch').read_text(encoding='utf-8')
-          start = p.index('@@ -1687,3 +1714,6 @@')
-          end = p.index('--- a/index.html', start)
-          Path('/tmp/label-sizes.patch').write_text(p[:start] + p[end:], encoding='utf-8')
-          PY
-          git apply --recount /tmp/label-sizes.patch
+          python3 .github/patches/apply.py
           cp .github/assets/label-sizes.css label-sizes.css
           python3 - <<'PY'
           from pathlib import Path
@@ -44,8 +37,7 @@ jobs:
           js.write_text(text, encoding='utf-8')
           html = Path('index.html')
           text = html.read_text(encoding='utf-8')
-          assert '1.1.5-teste' in text
-          text = text.replace('1.1.5-teste', '1.1.5')
+          text = text.replace('1.1.4</span></span>', '1.1.5</span></span>', 1)
           import re
           text, n = re.subn(r'<script>\s*\(function \(\) \{\s*var version = document\.querySelector\(\x27#app-version\x27\);\s*if \(version\) version\.textContent = \x271\.1\.4\x27;\s*if \(window\.PalletLabel\) window\.PalletLabel\.APP_VERSION = \x271\.1\.4\x27;\s*\}\(\)\);\s*</script>', '', text)
           assert n == 1, 'Trecho antigo que sobrescreve versão não encontrado'
