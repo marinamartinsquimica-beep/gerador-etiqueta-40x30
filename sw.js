@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eme-etiqueta-v1.1.16';
+const CACHE_NAME = 'eme-etiqueta-v1.1.17';
 const ASSETS = [
   './', './index.html', './styles.css', './theme-raiar.css',
   './label-sizes.css', './ajuste-v1.1.16.css', './app.js',
