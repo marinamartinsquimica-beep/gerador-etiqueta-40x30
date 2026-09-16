@@ -1,0 +1,41 @@
+/* Opções de tamanho; não altera as regras originais de impressão de 33 x 21 mm. */
+@media screen {
+  #label-size { width:100%;min-height:46px;padding:9px 12px;border:1px solid #cbdbe2;border-radius:12px;background:#fff;color:#254D69;font:inherit;font-weight:700; }
+  html[data-label-size="40x30"] .screen-label { width:400px !important;height:300px !important;max-width:100%; }
+  html[data-label-size="40x30"] .label-card { overflow-x:auto; }
+  html[data-label-size="40x30"] .screen-label .label-data { min-height:0; }
+}
+@media print {
+  /* Zebra: 2 etiquetas de 40 mm + intervalo de 2 mm = 82 mm de largura. */
+  html[data-label-size="40x30"], html[data-label-size="40x30"] body { width:82mm !important; }
+  html[data-label-size="40x30"] #print-area { width:82mm !important; }
+  html[data-label-size="40x30"] .print-page { width:82mm !important;height:30mm !important;gap:2mm !important; }
+  html[data-label-size="40x30"] .print-copy { width:40mm !important;height:30mm !important;flex:0 0 40mm !important;padding:.8mm !important;justify-content:center !important; }
+  html[data-label-size="40x30"] .print-copy .label-data { height:auto !important;max-width:100% !important; }
+  html[data-label-size="40x30"] .print-copy .label-sku strong { font-size:var(--sku-font-print) !important; }
+  html[data-label-size="40x30"] .print-copy .lot-line1 { font-size:var(--lot-value-font-print) !important; }
+  html[data-label-size="40x30"] .print-copy .label-lot > span { font-size:var(--lot-label-font-print) !important; }
+  /* Mantém proporção original do Data Matrix para leitura. */
+  html[data-label-size="40x30"] .print-qr, html[data-label-size="40x30"] .print-qr canvas { width:25mm !important;height:10mm !important;max-width:25mm !important;max-height:10mm !important; }
+}
+
+/* A folha maior tem duas etiquetas de 40 x 30 mm. */
+@media print {
+  html[data-label-size="40x30"] .print-page {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    box-sizing: border-box !important;
+    break-after: page !important;
+  }
+  html[data-label-size="40x30"] .print-page:last-child { break-after: auto !important; page-break-after: auto !important; }
+  html[data-label-size="40x30"] .print-copy {
+    box-sizing: border-box !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    overflow: hidden !important;
+  }
+  html[data-label-size="40x30"] .print-copy .label-data { flex: 0 0 auto !important; }
+  html[data-label-size="40x30"] .print-qr { flex: 0 0 10mm !important; order: 2 !important; }
+  html[data-label-size="40x30"] .print-qr canvas { image-rendering: pixelated !important; }
+}
