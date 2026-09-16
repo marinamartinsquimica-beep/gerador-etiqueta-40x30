@@ -1,0 +1,189 @@
+--- a/app.js
++++ b/app.js
+@@ -4,9 +4,30 @@
+    VERSÃO
+    ========================================================= */
+ 
+-const APP_VERSION = '1.1.3';
++const APP_VERSION = '1.1.5-teste-2';
+ 
+ const FONT_STORAGE_KEY = 'configEtiqueta-v1.1';
++const LABEL_SIZE_STORAGE_KEY = 'tamanhoEtiqueta-v1';
++const LABEL_SIZES = { '33x21': {width:33,height:21,perRow:3,gap:1.5}, '40x30': {width:40,height:30,perRow:2,gap:2} };
++const labelSizeInput = document.querySelector('#label-size');
++let selectedLabelSize = '33x21';
++try { if (LABEL_SIZES[localStorage.getItem(LABEL_SIZE_STORAGE_KEY)]) selectedLabelSize = localStorage.getItem(LABEL_SIZE_STORAGE_KEY); } catch (_) {}
++if (labelSizeInput) labelSizeInput.value = selectedLabelSize;
++function labelConfig() { return LABEL_SIZES[selectedLabelSize]; }
++function fontMax(rule) { return selectedLabelSize === '40x30' ? ({sku: 27, lotLabel: 10, lotValue: 20}[rule] || FONT_RULES[rule].max) : FONT_RULES[rule].max; }
++function refreshLabelSize() {
++  const cfg = labelConfig();
++  document.querySelector('#label-page-size').textContent = `@page { size: ${cfg.width * cfg.perRow + cfg.gap * (cfg.perRow - 1)}mm ${cfg.height}mm; margin: 0; }`;
++  document.documentElement.dataset.labelSize = selectedLabelSize;
++  document.querySelector('#preview-size').textContent = `${cfg.width} × ${cfg.height} mm`;
++  document.querySelector('#printer-size').textContent = `${cfg.width} × ${cfg.height} mm`;
++  document.querySelector('#printer-count').textContent = `${cfg.perRow} etiquetas por fileira`;
++  document.querySelector('#quantity-hint').textContent = `Exemplo: 30 etiquetas = ${Math.ceil(30 / cfg.perRow)} fileiras de ${cfg.perRow} etiquetas.`;
++  const clamped = Object.entries(FONT_RULES).some(([key]) => { if (fontSettings[key] > fontMax(key)) { fontSettings[key] = fontMax(key); return true; } return false; });
++  if (clamped) applyFontSettings();
++  updateLabel();
++}
++
+ 
+ 
+ /* =========================================================
+@@ -255,7 +276,7 @@
+           if (
+             Number.isFinite(value) &&
+             value >= rule.min &&
+-            value <= rule.max
++            value <= fontMax(key)
+           ) {
+ 
+             fontSettings[key] =
+@@ -348,7 +369,7 @@
+ 
+           if (
+             nextValue >
+-            rule.max
++            fontMax(key)
+           ) {
+ 
+             if (message) {
+@@ -435,6 +456,12 @@
+ }
+ 
+ 
++if (labelSizeInput) labelSizeInput.addEventListener('change', () => {
++  selectedLabelSize = LABEL_SIZES[labelSizeInput.value] ? labelSizeInput.value : '33x21';
++  try { localStorage.setItem(LABEL_SIZE_STORAGE_KEY, selectedLabelSize); } catch (_) {}
++  refreshLabelSize();
++});
++
+ /* =========================================================
+    DATA
+    ========================================================= */
+@@ -731,7 +758,7 @@
+ ) {
+ 
+   return Math.ceil(
+-    quantity / 3
++    quantity / labelConfig().perRow
+   );
+ 
+ }
+@@ -1094,12 +1121,12 @@
+ 
+     for (
+       let position = 0;
+-      position < 3;
++      position < labelConfig().perRow;
+       position += 1
+     ) {
+ 
+       const labelIndex =
+-        pageIndex * 3 +
++        pageIndex * labelConfig().perRow +
+         position;
+ 
+ 
+@@ -1271,7 +1298,7 @@
+       =
+       <strong>${pages}</strong>
+       página(s)/fileira(s)
+-      de até 3 etiquetas.
++      de até ${labelConfig().perRow} etiquetas.
+     `;
+ 
+ 
+@@ -1687,3 +1714,6 @@
+   updateLabel
+ 
+ };
++
++// Inicializa seleção de tamanho sem alterar a impressão padrão.
++refreshLabelSize();
+--- a/index.html
++++ b/index.html
+@@ -11,6 +11,7 @@
+   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+   <link rel="stylesheet" href="styles.css">
+   <link rel="stylesheet" href="theme-raiar.css">
++  <link rel="stylesheet" href="label-sizes.css">
+ </head>
+ 
+ <body>
+@@ -18,7 +19,7 @@
+ <header class="topbar">
+   <div class="topbar-inner">
+     <h1>GERADOR DE ETIQUETA DATA MATRIX</h1>
+-    <span>v<span id="app-version">1.1.4</span></span>
++    <span>v<span id="app-version">1.1.5-teste</span></span>
+   </div>
+ </header>
+ 
+@@ -113,19 +114,25 @@
+       <p class="info-box quantity-info">
+         Digite a quantidade real de etiquetas.
+         Exemplo:
+-        <strong>30 etiquetas = 10 fileiras de 3 etiquetas.</strong>
++        <strong><span id="quantity-hint">Exemplo: 30 etiquetas = 10 fileiras de 3 etiquetas.</span></strong>
+       </p>
+ 
+       <p id="form-error" class="error" role="alert"></p>
+ 
+-      <details class="font-settings">
++      <details class="font-settings" open>
+ 
+         <summary>
+-          <span>AJUSTES DA ETIQUETA</span>
++          <span>AJUSTES DA ETIQUETA — ESCOLHER TAMANHO</span>
+           <span class="settings-arrow">▼</span>
+         </summary>
+ 
+         <div class="settings-content">
++          <label for="label-size">ESCOLHER TAMANHO DE ETIQUETA</label>
++          <select id="label-size" aria-label="Escolher tamanho de etiqueta">
++            <option value="33x21">33 × 21 mm — 3 etiquetas por fileira</option>
++            <option value="40x30">40 × 30 mm — 2 etiquetas por fileira</option>
++          </select>
++          <p class="info-box">O tamanho maior permite ampliar mais as fontes de SKU e lote nos botões + abaixo.</p>
+ 
+           <div class="font-control">
+             <span>SKU</span>
+@@ -175,7 +182,7 @@
+ 
+   <section id="preview-section" class="preview-column" hidden>
+ 
+-    <h2>PRÉ-VISUALIZAÇÃO DA ETIQUETA (33 × 21 mm)</h2>
++    <h2>PRÉ-VISUALIZAÇÃO DA ETIQUETA (<span id="preview-size">33 × 21 mm</span>)</h2>
+ 
+     <div class="label-card">
+@@ -206,8 +213,8 @@
+ 
+     <div class="printer-card">
+       <h3>CONFIGURAÇÃO DA IMPRESSÃO</h3>
+-      <p><strong>Etiqueta:</strong> 33 × 21 mm</p>
+-      <p><strong>Impressão:</strong> 3 etiquetas por fileira</p>
++      <p><strong>Etiqueta:</strong> <span id="printer-size">33 × 21 mm</span></p>
++      <p><strong>Impressão:</strong> <span id="printer-count">3 etiquetas por fileira</span></p>
+       <p><strong>Impressora:</strong> Zebra ZD220t</p>
+       <p id="page-summary">Informe a quantidade de etiquetas.</p>
+     </div>
+@@ -228,7 +235,7 @@
+     Use o botão <strong>IMPRIMIR ETIQUETAS</strong> ou <strong>Ctrl + P</strong>.
+   </p>
+   <p>
+-    Cada fileira contém até <strong>3 etiquetas de 33 × 21 mm</strong>.
++    Escolha o tamanho em AJUSTES DA ETIQUETA antes de imprimir.
+   </p>
+   <p class="authorship">
+     Criado por: <strong>Marina Martins Costa</strong>
+@@ -240,6 +247,7 @@
+   <button id="update-button" type="button">ATUALIZAR AGORA</button>
+ </aside>
+ 
++<style id="label-page-size">@page { size: 102mm 21mm; margin: 0; }</style>
+ <script src="vendor/zxing.min.js"></script>
+ <script src="app.js"></script>
+ <script>
