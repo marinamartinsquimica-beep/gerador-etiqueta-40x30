@@ -4,7 +4,7 @@
    VERSÃO
    ========================================================= */
 
-const APP_VERSION = '1.1.12';
+const APP_VERSION = '1.1.13';
 
 const FONT_STORAGE_KEY = 'configEtiqueta-v1.1';
 const LABEL_SIZE_STORAGE_KEY = 'tamanhoEtiqueta-v1';

@@ -161,17 +161,17 @@
 @media print {
   html[data-label-size="40x30"] .print-copy .label-data {
     left: 0 !important;
-    width: 34mm !important;
-    min-width: 34mm !important;
-    max-width: 34mm !important;
-    transform: translateX(2mm) !important;
+    width: 33mm !important;
+    min-width: 33mm !important;
+    max-width: 33mm !important;
+    transform: translateX(3mm) !important;
     overflow: visible !important;
   }
   html[data-label-size="40x30"] .print-copy .label-lot,
   html[data-label-size="40x30"] .print-copy .lot-value-two-lines,
   html[data-label-size="40x30"] .print-copy .lot-line1 {
-    width: 34mm !important;
-    max-width: 34mm !important;
+    width: 33mm !important;
+    max-width: 33mm !important;
   }
   html[data-label-size="40x30"] .print-copy .lot-line1 {
     font-size: var(--lot-value-font-print) !important;
@@ -180,6 +180,6 @@
   }
   html[data-label-size="40x30"] .print-copy .print-qr {
     left: 0 !important;
-    transform: translateX(2mm) !important;
+    transform: translateX(3mm) !important;
   }
 }
