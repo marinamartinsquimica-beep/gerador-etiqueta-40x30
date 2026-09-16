@@ -4,7 +4,7 @@
    VERSÃO
    ========================================================= */
 
-const APP_VERSION = '1.1.5';
+const APP_VERSION = '1.1.6';
 
 const FONT_STORAGE_KEY = 'configEtiqueta-v1.1';
 const LABEL_SIZE_STORAGE_KEY = 'tamanhoEtiqueta-v1';
@@ -1717,3 +1717,29 @@ window.PalletLabel = {
 
 // Inicializa seleção de tamanho sem alterar a impressão padrão.
 refreshLabelSize();
+
+// Ajustes independentes de posicionamento e escala, persistidos neste navegador.
+(function initPrintCalibration() {
+  const offset = document.querySelector('#label-offset-x');
+  const scale = document.querySelector('#matrix-scale');
+  if (!offset || !scale) return;
+  function saved(key, fallback) { try { return localStorage.getItem(key) ?? fallback; } catch (_) { return fallback; } }
+  offset.value = String(Math.max(-5, Math.min(5, Number(saved('labelOffsetX-v1', '0')) || 0)));
+  scale.value = String(Math.max(70, Math.min(120, Number(saved('matrixScale-v1', '100')) || 100)));
+  function apply() {
+    const x = Number(offset.value); const percent = Number(scale.value);
+    document.documentElement.style.setProperty('--label-offset-x', x + 'mm');
+    document.documentElement.style.setProperty('--matrix-scale', String(percent / 100));
+    document.querySelector('#offset-x-value').textContent = x.toFixed(1).replace('.', ',') + ' mm';
+    document.querySelector('#matrix-scale-value').textContent = percent + '%';
+    try { localStorage.setItem('labelOffsetX-v1', String(x)); localStorage.setItem('matrixScale-v1', String(percent)); } catch (_) {}
+  }
+  offset.addEventListener('input', apply); scale.addEventListener('input', apply);
+  for (const [id, input, delta] of [['offset-left',offset,-0.2],['offset-right',offset,0.2],['matrix-smaller',scale,-5],['matrix-bigger',scale,5]]) {
+    document.querySelector('#' + id).addEventListener('click', () => {
+      input.value = String(Math.max(Number(input.min), Math.min(Number(input.max), Math.round((Number(input.value) + delta) * 10) / 10)));
+      apply();
+    });
+  }
+  apply();
+})();

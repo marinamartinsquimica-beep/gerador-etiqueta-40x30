@@ -39,3 +39,13 @@
   html[data-label-size="40x30"] .print-qr { flex: 0 0 10mm !important; order: 2 !important; }
   html[data-label-size="40x30"] .print-qr canvas { image-rendering: pixelated !important; }
 }
+
+/* Calibração: desloca somente o conteúdo, sem alterar largura do papel ou espaçamento. */
+@media print {
+  .print-page { position: relative !important; left: var(--label-offset-x, 0mm) !important; }
+  .print-qr { transform: scale(var(--matrix-scale, 1)) !important; transform-origin: center center !important; }
+}
+@media screen {
+  #label-offset-x, #matrix-scale { width: 100%; accent-color: #254d69; margin: 8px 0 16px; }
+  .screen-label .label-qr, .screen-label .qr-area { transform: scale(var(--matrix-scale, 1)); transform-origin: center; }
+}
