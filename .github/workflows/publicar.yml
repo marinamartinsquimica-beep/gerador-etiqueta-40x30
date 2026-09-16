@@ -1,75 +1,23 @@
-name: Publicar gerador 33x21 e 40x30
+name: Publicar gerador de etiquetas
 on:
   push:
     branches: [main]
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 concurrency:
   group: publicar-gerador
   cancel-in-progress: false
 jobs:
-  preparar:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Importar base original e aplicar ajustes testados
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -f .github/patches/apply.py
-          test -f .github/assets/label-sizes.css
-          git clone --quiet --depth 1 https://github.com/marinamartinsquimica-beep/gerador-etiqueta-qr.git /tmp/gerador-base
-          git -C /tmp/gerador-base fetch --quiet --depth 1 origin f6eccb388c8def43c6fdb031923c59e2c2f364b8
-          git -C /tmp/gerador-base checkout --quiet f6eccb388c8def43c6fdb031923c59e2c2f364b8
-          rsync -a --exclude=.git --exclude=.github /tmp/gerador-base/ ./
-          python3 .github/patches/apply.py
-          cp .github/assets/label-sizes.css label-sizes.css
-          python3 - <<'PY'
-          from pathlib import Path
-          js = Path('app.js')
-          text = js.read_text(encoding='utf-8')
-          assert "const APP_VERSION = '1.1.5-teste-2';" in text
-          text = text.replace("const APP_VERSION = '1.1.5-teste-2';", "const APP_VERSION = '1.1.5';", 1)
-          text += '\n// Inicializa seleção de tamanho sem alterar a impressão padrão.\nrefreshLabelSize();\n'
-          js.write_text(text, encoding='utf-8')
-          html = Path('index.html')
-          text = html.read_text(encoding='utf-8')
-          text = text.replace('1.1.4</span></span>', '1.1.5</span></span>', 1)
-          import re
-          text, n = re.subn(r'<script>\s*\(function \(\) \{\s*var version = document\.querySelector\(\x27#app-version\x27\);\s*if \(version\) version\.textContent = \x271\.1\.4\x27;\s*if \(window\.PalletLabel\) window\.PalletLabel\.APP_VERSION = \x271\.1\.4\x27;\s*\}\(\)\);\s*</script>', '', text)
-          assert n == 1, 'Trecho antigo que sobrescreve versão não encontrado'
-          html.write_text(text, encoding='utf-8')
-          sw = Path('sw.js')
-          text = sw.read_text(encoding='utf-8')
-          assert "'gerador-data-matrix-paletes-v1.1.4-layout-raiar-r2'" in text
-          text = text.replace("'gerador-data-matrix-paletes-v1.1.4-layout-raiar-r2'", "'gerador-data-matrix-paletes-v1.1.5-40x30'", 1)
-          assert "  './theme-raiar.css'," in text
-          text = text.replace("  './theme-raiar.css',", "  './theme-raiar.css',\n  './label-sizes.css',", 1)
-          sw.write_text(text, encoding='utf-8')
-          Path('version.json').write_text('{\n  "version": "1.1.5"\n}\n', encoding='utf-8')
-          PY
-          node --check app.js
-          test -s vendor/zxing.min.js
-          test -s icons/icon-192.png
-          test -s icons/icon-512.png
-          git add .
-          if ! git diff --cached --quiet; then
-            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'feat: publicar gerador com etiquetas 33x21 e 40x30'
-            git push origin HEAD:main
-          fi
   pages:
-    needs: preparar
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: main
       - uses: actions/configure-pages@v5
         with:
           enablement: true
