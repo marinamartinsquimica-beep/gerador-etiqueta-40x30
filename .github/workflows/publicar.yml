@@ -25,14 +25,23 @@ jobs:
           git -C /tmp/gerador-base fetch --quiet --depth 1 origin f6eccb388c8def43c6fdb031923c59e2c2f364b8
           git -C /tmp/gerador-base checkout --quiet f6eccb388c8def43c6fdb031923c59e2c2f364b8
           rsync -a --exclude=.git --exclude=.github /tmp/gerador-base/ ./
-          git apply --recount .github/patches/label-sizes.patch
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('.github/patches/label-sizes.patch').read_text(encoding='utf-8')
+          start = p.index('@@ -1687,3 +1714,6 @@')
+          end = p.index('--- a/index.html', start)
+          Path('/tmp/label-sizes.patch').write_text(p[:start] + p[end:], encoding='utf-8')
+          PY
+          git apply --recount /tmp/label-sizes.patch
           cp .github/assets/label-sizes.css label-sizes.css
           python3 - <<'PY'
           from pathlib import Path
           js = Path('app.js')
           text = js.read_text(encoding='utf-8')
           assert "const APP_VERSION = '1.1.5-teste-2';" in text
-          js.write_text(text.replace("const APP_VERSION = '1.1.5-teste-2';", "const APP_VERSION = '1.1.5';", 1), encoding='utf-8')
+          text = text.replace("const APP_VERSION = '1.1.5-teste-2';", "const APP_VERSION = '1.1.5';", 1)
+          text += '\n// Inicializa seleção de tamanho sem alterar a impressão padrão.\nrefreshLabelSize();\n'
+          js.write_text(text, encoding='utf-8')
           html = Path('index.html')
           text = html.read_text(encoding='utf-8')
           assert '1.1.5-teste' in text
