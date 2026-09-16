@@ -1,0 +1,38 @@
+name: Corrigir corte do lote v1.1.9
+on:
+  push:
+    paths:
+      - '.github/workflows/corrigir-corte-lote-v119.yml'
+permissions:
+  contents: write
+jobs:
+  corrigir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar correção e validar
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app.js'); s=p.read_text(); assert "const APP_VERSION = '1.1.8';" in s; p.write_text(s.replace("const APP_VERSION = '1.1.8';", "const APP_VERSION = '1.1.9';",1))
+          p=Path('label-sizes.css'); s=p.read_text(); s+='''
+/* v1.1.9: o lote não deve ser limitado artificialmente a 14 pt nem recortado
+   pelo contêiner interno; a etiqueta física continua delimitando a impressão. */
+@media print {
+ html[data-label-size="40x30"] .print-copy .label-data { overflow:visible !important; max-width:none !important; width:100% !important; }
+ html[data-label-size="40x30"] .print-copy .lot-line1 { font-size:var(--lot-value-font-print) !important; white-space:nowrap !important; max-width:none !important; overflow:visible !important; }
+ html[data-label-size="40x30"] .print-copy .label-lot { overflow:visible !important; max-width:none !important; }
+}
+'''; p.write_text(s)
+          p=Path('index.html'); s=p.read_text(); assert '1.1.8</span></span>' in s; p.write_text(s.replace('1.1.8</span></span>','1.1.9</span></span>',1))
+          p=Path('sw.js'); s=p.read_text(); assert 'v1.1.8' in s; p.write_text(s.replace('v1.1.8','v1.1.9',1))
+          Path('version.json').write_text('{\n  "version": "1.1.9"\n}\n')
+          PY
+          node --check app.js
+          node --check calibracao.js
+          grep -q 'font-size:var(--lot-value-font-print) !important' label-sizes.css
+          git add app.js label-sizes.css index.html sw.js version.json
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'fix: remover corte artificial do lote v1.1.9'
+          git push origin HEAD:main
