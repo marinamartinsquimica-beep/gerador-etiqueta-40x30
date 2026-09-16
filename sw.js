@@ -1,5 +1,5 @@
 const CACHE_NAME =
-  'eme-etiqueta-v1.1.11';
+  'eme-etiqueta-v1.1.12';
 
 
 const ASSETS = [

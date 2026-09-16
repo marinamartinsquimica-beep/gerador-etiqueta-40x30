@@ -155,3 +155,31 @@
     align-self: center !important;
   }
 }
+
+/* v1.1.12: mover o conjunto 2 mm para a direita dentro de cada etiqueta.
+   Preserva 18 pt, proporcao do Data Matrix e largura do papel. */
+@media print {
+  html[data-label-size="40x30"] .print-copy .label-data {
+    left: 0 !important;
+    width: 34mm !important;
+    min-width: 34mm !important;
+    max-width: 34mm !important;
+    transform: translateX(2mm) !important;
+    overflow: visible !important;
+  }
+  html[data-label-size="40x30"] .print-copy .label-lot,
+  html[data-label-size="40x30"] .print-copy .lot-value-two-lines,
+  html[data-label-size="40x30"] .print-copy .lot-line1 {
+    width: 34mm !important;
+    max-width: 34mm !important;
+  }
+  html[data-label-size="40x30"] .print-copy .lot-line1 {
+    font-size: var(--lot-value-font-print) !important;
+    transform: scaleX(.78) !important;
+    transform-origin: center center !important;
+  }
+  html[data-label-size="40x30"] .print-copy .print-qr {
+    left: 0 !important;
+    transform: translateX(2mm) !important;
+  }
+}
