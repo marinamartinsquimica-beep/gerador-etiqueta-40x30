@@ -1,0 +1,66 @@
+name: Ajustar posicao etiquetas 1.1.12
+on:
+  push:
+    paths:
+      - '.github/workflows/ajustar-posicao-1112.yml'
+permissions:
+  contents: write
+jobs:
+  ajustar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Corrigir deslocamento individual e validar
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          css=Path('label-sizes.css')
+          s=css.read_text()
+          assert 'v1.1.11: impedir recorte lateral' in s
+          s+='''
+          /* v1.1.12: mover o conjunto 2 mm para a direita dentro de cada etiqueta.
+             Preserva 18 pt, proporcao do Data Matrix e largura do papel. */
+          @media print {
+            html[data-label-size="40x30"] .print-copy .label-data {
+              left: 0 !important;
+              width: 34mm !important;
+              min-width: 34mm !important;
+              max-width: 34mm !important;
+              transform: translateX(2mm) !important;
+              overflow: visible !important;
+            }
+            html[data-label-size="40x30"] .print-copy .label-lot,
+            html[data-label-size="40x30"] .print-copy .lot-value-two-lines,
+            html[data-label-size="40x30"] .print-copy .lot-line1 {
+              width: 34mm !important;
+              max-width: 34mm !important;
+            }
+            html[data-label-size="40x30"] .print-copy .lot-line1 {
+              font-size: var(--lot-value-font-print) !important;
+              transform: scaleX(.78) !important;
+              transform-origin: center center !important;
+            }
+            html[data-label-size="40x30"] .print-copy .print-qr {
+              left: 0 !important;
+              transform: translateX(2mm) !important;
+            }
+          }
+          '''
+          css.write_text(s)
+          js=Path('app.js'); s=js.read_text(); assert "const APP_VERSION = '1.1.11';" in s
+          js.write_text(s.replace("const APP_VERSION = '1.1.11';", "const APP_VERSION = '1.1.12';", 1))
+          html=Path('index.html'); s=html.read_text(); assert '1.1.11</span>' in s
+          html.write_text(s.replace('1.1.11</span>', '1.1.12</span>', 1))
+          Path('version.json').write_text('{\n  "version": "1.1.12"\n}\n')
+          sw=Path('sw.js'); s=sw.read_text(); import re
+          s,n=re.subn(r"(CACHE_NAME\s*=\s*['\"])[^'\"]+",r'\g<1>eme-etiqueta-v1.1.12',s,count=1)
+          if n: sw.write_text(s)
+          PY
+          node --check app.js
+          node --check calibracao.js
+          grep -q 'v1.1.12: mover' label-sizes.css
+          git add app.js index.html label-sizes.css version.json sw.js
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'fix: deslocar conjunto para direita v1.1.12'
+          git push origin HEAD:main
