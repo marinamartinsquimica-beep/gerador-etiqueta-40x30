@@ -1,0 +1,51 @@
+name: Aplicar calibracao da etiqueta
+on:
+  push:
+    paths:
+      - '.github/workflows/aplicar-calibracao.yml'
+permissions:
+  contents: write
+jobs:
+  calibrar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar controles de calibracao
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          js = Path('app.js')
+          text = js.read_text(encoding='utf-8')
+          assert "const APP_VERSION = '1.1.5';" in text
+          assert 'initPrintCalibration' not in text
+          text = text.replace("const APP_VERSION = '1.1.5';", "const APP_VERSION = '1.1.6';", 1)
+          text += '''\n// Ajustes independentes de posicionamento e escala, persistidos neste navegador.\n(function initPrintCalibration() {\n  const offset = document.querySelector('#label-offset-x');\n  const scale = document.querySelector('#matrix-scale');\n  if (!offset || !scale) return;\n  function saved(key, fallback) { try { return localStorage.getItem(key) ?? fallback; } catch (_) { return fallback; } }\n  offset.value = String(Math.max(-5, Math.min(5, Number(saved('labelOffsetX-v1', '0')) || 0)));\n  scale.value = String(Math.max(70, Math.min(120, Number(saved('matrixScale-v1', '100')) || 100)));\n  function apply() {\n    const x = Number(offset.value); const percent = Number(scale.value);\n    document.documentElement.style.setProperty('--label-offset-x', x + 'mm');\n    document.documentElement.style.setProperty('--matrix-scale', String(percent / 100));\n    document.querySelector('#offset-x-value').textContent = x.toFixed(1).replace('.', ',') + ' mm';\n    document.querySelector('#matrix-scale-value').textContent = percent + '%';\n    try { localStorage.setItem('labelOffsetX-v1', String(x)); localStorage.setItem('matrixScale-v1', String(percent)); } catch (_) {}\n  }\n  offset.addEventListener('input', apply); scale.addEventListener('input', apply);\n  for (const [id, input, delta] of [['offset-left',offset,-0.2],['offset-right',offset,0.2],['matrix-smaller',scale,-5],['matrix-bigger',scale,5]]) {\n    document.querySelector('#' + id).addEventListener('click', () => {\n      input.value = String(Math.max(Number(input.min), Math.min(Number(input.max), Math.round((Number(input.value) + delta) * 10) / 10)));\n      apply();\n    });\n  }\n  apply();\n})();\n'''
+          js.write_text(text, encoding='utf-8')
+          html = Path('index.html')
+          text = html.read_text(encoding='utf-8')
+          marker = '<div class="font-control">'
+          anchor = '<p class="info-box">O tamanho maior permite ampliar mais as fontes de SKU e lote nos botões + abaixo.</p>'
+          assert anchor in text and 'label-offset-x' not in text
+          controls = '''\n          <div class="font-control"><label for="label-offset-x">DESLOCAR IMPRESSÃO PARA A DIREITA / ESQUERDA</label><div><button type="button" id="offset-left">−</button><output id="offset-x-value">0,0 mm</output><button type="button" id="offset-right">+</button></div></div>\n          <input id="label-offset-x" type="range" min="-5" max="5" step="0.2" value="0" aria-label="Deslocamento horizontal da impressão em milímetros">\n          <div class="font-control"><label for="matrix-scale">TAMANHO DO DATA MATRIX</label><div><button type="button" id="matrix-smaller">−</button><output id="matrix-scale-value">100%</output><button type="button" id="matrix-bigger">+</button></div></div>\n          <input id="matrix-scale" type="range" min="70" max="120" step="5" value="100" aria-label="Tamanho proporcional do Data Matrix">\n          <p class="info-box">A posição desloca as duas etiquetas juntas. O Data Matrix mantém a proporção; confira a leitura após alterar seu tamanho.</p>\n'''
+          text = text.replace(anchor, anchor + controls, 1)
+          assert '1.1.5</span></span>' in text
+          html.write_text(text.replace('1.1.5</span></span>', '1.1.6</span></span>', 1), encoding='utf-8')
+          css = Path('label-sizes.css')
+          text = css.read_text(encoding='utf-8')
+          assert '--label-offset-x' not in text
+          text += '''\n/* Calibração: desloca somente o conteúdo, sem alterar largura do papel ou espaçamento. */\n@media print {\n  .print-page { position: relative !important; left: var(--label-offset-x, 0mm) !important; }\n  .print-qr { transform: scale(var(--matrix-scale, 1)) !important; transform-origin: center center !important; }\n}\n@media screen {\n  #label-offset-x, #matrix-scale { width: 100%; accent-color: #254d69; margin: 8px 0 16px; }\n  .screen-label .label-qr, .screen-label .qr-area { transform: scale(var(--matrix-scale, 1)); transform-origin: center; }\n}\n'''
+          css.write_text(text, encoding='utf-8')
+          sw = Path('sw.js')
+          text = sw.read_text(encoding='utf-8')
+          assert 'v1.1.5-40x30' in text
+          sw.write_text(text.replace('v1.1.5-40x30', 'v1.1.6-calibracao', 1), encoding='utf-8')
+          Path('version.json').write_text('{\n  "version": "1.1.6"\n}\n', encoding='utf-8')
+          PY
+          node --check app.js
+          grep -q 'label-offset-x' index.html
+          grep -q 'matrix-scale' label-sizes.css
+          git add app.js index.html label-sizes.css sw.js version.json
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'feat: calibracao horizontal e tamanho do Data Matrix v1.1.6'
+          git push origin HEAD:main
