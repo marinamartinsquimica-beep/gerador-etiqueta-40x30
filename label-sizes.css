@@ -112,3 +112,46 @@
     overflow: visible !important;
   }
 }
+
+/* v1.1.11: impedir recorte lateral preservando altura da fonte escolhida.
+   O deslocamento de 8 mm nao pode somar ao centro do campo de 36 mm.
+   Condensar somente a largura da linha do lote, sem reduzir seus 18 pt. */
+@media print {
+  html[data-label-size="40x30"] .print-copy {
+    padding: 1mm !important;
+    overflow: hidden !important;
+  }
+  html[data-label-size="40x30"] .print-copy .label-data {
+    left: 0 !important;
+    transform: translateX(0mm) !important;
+    width: 38mm !important;
+    max-width: 38mm !important;
+    min-width: 38mm !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    text-align: center !important;
+  }
+  html[data-label-size="40x30"] .print-copy .label-lot,
+  html[data-label-size="40x30"] .print-copy .lot-value-two-lines {
+    width: 38mm !important;
+    max-width: 38mm !important;
+    overflow: visible !important;
+    text-align: center !important;
+  }
+  html[data-label-size="40x30"] .print-copy .lot-line1 {
+    width: 38mm !important;
+    max-width: 38mm !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    transform: scaleX(.78) !important;
+    transform-origin: center center !important;
+    font-size: var(--lot-value-font-print) !important;
+    letter-spacing: -0.35pt !important;
+    text-align: center !important;
+  }
+  html[data-label-size="40x30"] .print-copy .print-qr {
+    left: 0 !important;
+    transform: translateX(0mm) !important;
+    align-self: center !important;
+  }
+}
