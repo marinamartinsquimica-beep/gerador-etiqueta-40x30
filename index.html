@@ -19,7 +19,7 @@
 <header class="topbar">
   <div class="topbar-inner">
     <h1>GERADOR DE ETIQUETA DATA MATRIX</h1>
-    <span>v<span id="app-version">1.1.6</span></span>
+    <span>v<span id="app-version">1.1.7</span></span>
   </div>
 </header>
 
@@ -137,7 +137,7 @@
           <input id="label-offset-x" type="range" min="-5" max="5" step="0.2" value="0" aria-label="Deslocamento horizontal da impressão em milímetros">
           <div class="font-control"><label for="matrix-scale">TAMANHO DO DATA MATRIX</label><div><button type="button" id="matrix-smaller">−</button><output id="matrix-scale-value">100%</output><button type="button" id="matrix-bigger">+</button></div></div>
           <input id="matrix-scale" type="range" min="70" max="120" step="5" value="100" aria-label="Tamanho proporcional do Data Matrix">
-          <p class="info-box">A posição desloca as duas etiquetas juntas. O Data Matrix mantém a proporção; confira a leitura após alterar seu tamanho.</p>
+          <p class="info-box">A posição desloca o conteúdo dentro de cada etiqueta. O Data Matrix mantém a proporção; confira a leitura após alterar seu tamanho.</p>
 
 
           <div class="font-control">
@@ -256,6 +256,7 @@
 <style id="label-page-size">@page { size: 102mm 21mm; margin: 0; }</style>
 <script src="vendor/zxing.min.js"></script>
 <script src="app.js"></script>
+<script src="calibracao.js?v=117"></script>
 
 
 </body>

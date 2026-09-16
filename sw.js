@@ -1,5 +1,5 @@
 const CACHE_NAME =
-  'gerador-data-matrix-paletes-v1.1.6-calibracao';
+  'gerador-data-matrix-paletes-v1.1.7-controles';
 
 
 const ASSETS = [
@@ -9,6 +9,7 @@ const ASSETS = [
   './theme-raiar.css',
   './label-sizes.css',
   './app.js',
+  './calibracao.js',
   './manifest.webmanifest',
   './version.json',
   './vendor/zxing.min.js',

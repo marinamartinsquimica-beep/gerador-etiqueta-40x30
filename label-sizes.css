@@ -49,3 +49,19 @@
   #label-offset-x, #matrix-scale { width: 100%; accent-color: #254d69; margin: 8px 0 16px; }
   .screen-label .label-qr, .screen-label .qr-area { transform: scale(var(--matrix-scale, 1)); transform-origin: center; }
 }
+
+/* v1.1.7: deslocamento interno individual, sem deslocar a folha. */
+@media print {
+ .print-page { left: 0 !important; }
+ .print-copy .label-data, .print-copy .print-qr { position:relative !important; left:var(--label-offset-x, 0mm) !important; }
+ .print-qr { transform:none !important; overflow:visible !important; }
+ .print-qr canvas { transform:none !important; width:calc(25mm * var(--matrix-scale, 1)) !important; height:calc(10mm * var(--matrix-scale, 1)) !important; max-width:27.5mm !important; max-height:11mm !important; object-fit:contain !important; }
+ html[data-label-size="40x30"] .print-copy { padding:1.2mm 1.5mm !important; }
+ html[data-label-size="40x30"] .print-copy .label-data { max-width:100% !important; overflow:hidden !important; }
+ html[data-label-size="40x30"] .print-copy .lot-line1 { font-size:min(var(--lot-value-font-print), 14pt) !important; white-space:nowrap !important; }
+}
+@media screen {
+ .screen-label .label-qr, .screen-label .qr-area { transform:none !important; }
+ .screen-label .label-data, .screen-label .qr-code { position:relative; left:var(--label-offset-preview, 0px); }
+ .screen-label .qr-code canvas { transform:scale(var(--matrix-scale, 1)); transform-origin:center; }
+}
