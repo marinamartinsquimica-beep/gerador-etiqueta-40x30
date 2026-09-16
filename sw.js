@@ -1,5 +1,5 @@
 const CACHE_NAME =
-  'gerador-data-matrix-paletes-v1.1.7-controles';
+  'gerador-data-matrix-paletes-v1.1.8-controles';
 
 
 const ASSETS = [

@@ -58,7 +58,7 @@
  .print-qr canvas { transform:none !important; width:calc(25mm * var(--matrix-scale, 1)) !important; height:calc(10mm * var(--matrix-scale, 1)) !important; max-width:27.5mm !important; max-height:11mm !important; object-fit:contain !important; }
  html[data-label-size="40x30"] .print-copy { padding:1.2mm 1.5mm !important; }
  html[data-label-size="40x30"] .print-copy .label-data { max-width:100% !important; overflow:hidden !important; }
- html[data-label-size="40x30"] .print-copy .lot-line1 { font-size:min(var(--lot-value-font-print), 14pt) !important; white-space:nowrap !important; }
+ html[data-label-size="40x30"] .print-copy .lot-line1 { font-size:var(--lot-value-font-print) !important; white-space:nowrap !important; }
 }
 @media screen {
  .screen-label .label-qr, .screen-label .qr-area { transform:none !important; }

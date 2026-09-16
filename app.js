@@ -4,7 +4,7 @@
    VERSÃO
    ========================================================= */
 
-const APP_VERSION = '1.1.7';
+const APP_VERSION = '1.1.8';
 
 const FONT_STORAGE_KEY = 'configEtiqueta-v1.1';
 const LABEL_SIZE_STORAGE_KEY = 'tamanhoEtiqueta-v1';
@@ -14,7 +14,7 @@ let selectedLabelSize = '33x21';
 try { if (LABEL_SIZES[localStorage.getItem(LABEL_SIZE_STORAGE_KEY)]) selectedLabelSize = localStorage.getItem(LABEL_SIZE_STORAGE_KEY); } catch (_) {}
 if (labelSizeInput) labelSizeInput.value = selectedLabelSize;
 function labelConfig() { return LABEL_SIZES[selectedLabelSize]; }
-function fontMax(rule) { return selectedLabelSize === '40x30' ? ({sku: 27, lotLabel: 10, lotValue: 20}[rule] || FONT_RULES[rule].max) : FONT_RULES[rule].max; }
+function fontMax(rule) { return selectedLabelSize === '40x30' ? ({sku: 27, lotLabel: 10, lotValue: 26}[rule] || FONT_RULES[rule].max) : FONT_RULES[rule].max; }
 function refreshLabelSize() {
   const cfg = labelConfig();
   document.querySelector('#label-page-size').textContent = `@page { size: ${cfg.width * cfg.perRow + cfg.gap * (cfg.perRow - 1)}mm ${cfg.height}mm; margin: 0; }`;
@@ -1724,7 +1724,7 @@ refreshLabelSize();
   const scale = document.querySelector('#matrix-scale');
   if (!offset || !scale) return;
   function saved(key, fallback) { try { return localStorage.getItem(key) ?? fallback; } catch (_) { return fallback; } }
-  offset.value = String(Math.max(-5, Math.min(5, Number(saved('labelOffsetX-v1', '0')) || 0)));
+  offset.value = String(Math.max(-5, Math.min(10, Number(saved('labelOffsetX-v1', '0')) || 0)));
   scale.value = String(Math.max(70, Math.min(120, Number(saved('matrixScale-v1', '100')) || 100)));
   function apply() {
     const x = Number(offset.value); const percent = Number(scale.value);

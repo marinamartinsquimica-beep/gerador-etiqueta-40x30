@@ -19,7 +19,7 @@
 <header class="topbar">
   <div class="topbar-inner">
     <h1>GERADOR DE ETIQUETA DATA MATRIX</h1>
-    <span>v<span id="app-version">1.1.7</span></span>
+    <span>v<span id="app-version">1.1.8</span></span>
   </div>
 </header>
 
@@ -134,7 +134,7 @@
           </select>
           <p class="info-box">O tamanho maior permite ampliar mais as fontes de SKU e lote nos botões + abaixo.</p>
           <div class="font-control"><label for="label-offset-x">DESLOCAR IMPRESSÃO PARA A DIREITA / ESQUERDA</label><div><button type="button" id="offset-left">−</button><output id="offset-x-value">0,0 mm</output><button type="button" id="offset-right">+</button></div></div>
-          <input id="label-offset-x" type="range" min="-5" max="5" step="0.2" value="0" aria-label="Deslocamento horizontal da impressão em milímetros">
+          <input id="label-offset-x" type="range" min="-5" max="10" step="0.2" value="0" aria-label="Deslocamento horizontal da impressão em milímetros">
           <div class="font-control"><label for="matrix-scale">TAMANHO DO DATA MATRIX</label><div><button type="button" id="matrix-smaller">−</button><output id="matrix-scale-value">100%</output><button type="button" id="matrix-bigger">+</button></div></div>
           <input id="matrix-scale" type="range" min="70" max="120" step="5" value="100" aria-label="Tamanho proporcional do Data Matrix">
           <p class="info-box">A posição desloca o conteúdo dentro de cada etiqueta. O Data Matrix mantém a proporção; confira a leitura após alterar seu tamanho.</p>
