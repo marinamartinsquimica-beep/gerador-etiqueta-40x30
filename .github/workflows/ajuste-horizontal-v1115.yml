@@ -1,0 +1,35 @@
+name: Ajuste horizontal conservador v1.1.15
+on:
+  push:
+    paths:
+      - '.github/workflows/ajuste-horizontal-v1115.yml'
+permissions:
+  contents: write
+jobs:
+  ajustar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deslocar conteudo 0.5 mm sem alterar dimensoes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          css=Path('label-sizes.css')
+          text=css.read_text(encoding='utf-8')
+          marker='/* v1.1.15: ajuste fino de 0,5 mm para a direita; sem mudar tamanho, fonte ou papel. */'
+          assert marker not in text
+          assert 'v1.1.14:' in text
+          text+='\n'+marker+'\n@media print {\n  html[data-label-size="40x30"] .print-copy .label-data,\n  html[data-label-size="40x30"] .print-copy .print-qr { transform: translateX(3.5mm) !important; }\n}\n@media screen {\n  html[data-label-size="40x30"] .screen-label .label-data,\n  html[data-label-size="40x30"] .screen-label .qr-code { transform: translateX(35px) !important; }\n}\n'
+          css.write_text(text,encoding='utf-8')
+          js=Path('app.js'); text=js.read_text(encoding='utf-8'); assert text.count("const APP_VERSION = '1.1.14';")==1; js.write_text(text.replace("const APP_VERSION = '1.1.14';","const APP_VERSION = '1.1.15';"),encoding='utf-8')
+          html=Path('index.html'); text=html.read_text(encoding='utf-8'); assert '1.1.14</span>' in text; html.write_text(text.replace('1.1.14</span>','1.1.15</span>',1),encoding='utf-8')
+          ver=Path('version.json'); assert '1.1.14' in ver.read_text(encoding='utf-8'); ver.write_text('{\n  "version": "1.1.15"\n}\n',encoding='utf-8')
+          sw=Path('sw.js'); text=sw.read_text(encoding='utf-8'); assert '1.1.14' in text; sw.write_text(text.replace('1.1.14','1.1.15'),encoding='utf-8')
+          PY
+          node --check app.js
+          node --check calibracao.js
+          git add label-sizes.css app.js index.html version.json sw.js
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'fix: mover conjunto 0.5 mm a direita v1.1.15'
+          git push origin HEAD:main
