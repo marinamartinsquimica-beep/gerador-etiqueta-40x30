@@ -283,3 +283,13 @@
     image-rendering: pixelated !important;
   }
 }
+
+/* v1.1.15: ajuste fino de 0,5 mm para a direita; sem mudar tamanho, fonte ou papel. */
+@media print {
+  html[data-label-size="40x30"] .print-copy .label-data,
+  html[data-label-size="40x30"] .print-copy .print-qr { transform: translateX(3.5mm) !important; }
+}
+@media screen {
+  html[data-label-size="40x30"] .screen-label .label-data,
+  html[data-label-size="40x30"] .screen-label .qr-code { transform: translateX(35px) !important; }
+}
