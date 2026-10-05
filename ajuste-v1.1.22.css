@@ -1,18 +1,50 @@
-/* v1.1.22 — corrige a quebra entre fileiras e posiciona o conteúdo mais alto. */
+/* v1.1.24 — correção da alimentação 40x30 e posicionamento vertical. */
+
+/* Exibe a versão publicada mesmo em clientes cujo app.js anterior ainda informa 1.1.23. */
+#app-version { font-size: 0; }
+#app-version::after { content: '1.1.24'; font-size: initial; }
+
 @media print {
-  .print-page {
-    break-after: auto !important;
-    page-break-after: auto !important;
+  html[data-label-size="40x30"],
+  html[data-label-size="40x30"] body,
+  html[data-label-size="40x30"] #print-area {
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
-  /* Mais específico que a regra 40×30 que forçava quebra após cada fileira. */
-  html[data-label-size="40x30"] #print-area .print-page,
+  /* Cada fileira de duas etiquetas é UMA página física de 82 x 30 mm.
+     A quebra explícita evita que o navegador/Zebra introduza uma página vazia entre fileiras. */
+  html[data-label-size="40x30"] #print-area .print-page {
+    width: 82mm !important;
+    height: 30mm !important;
+    min-height: 30mm !important;
+    max-height: 30mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 2mm !important;
+    overflow: hidden !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    break-after: page !important;
+    page-break-after: always !important;
+  }
+
   html[data-label-size="40x30"] #print-area .print-page:last-child {
     break-after: auto !important;
     page-break-after: auto !important;
   }
 
-  /* Usa o ajuste vertical do controle na etiqueta impressa; padrão: 2 mm para cima. */
+  html[data-label-size="40x30"] #print-area .print-copy {
+    width: 40mm !important;
+    height: 30mm !important;
+    min-height: 30mm !important;
+    max-height: 30mm !important;
+    flex: 0 0 40mm !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Mantém o conteúdo mais alto e respeita o controle vertical existente. */
   #print-area .print-copy .label-data,
   #print-area .print-copy .print-qr {
     position: relative !important;
