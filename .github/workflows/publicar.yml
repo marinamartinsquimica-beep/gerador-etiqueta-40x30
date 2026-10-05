@@ -28,7 +28,7 @@ jobs:
             if [ -d "$dir" ]; then cp -R "$dir" _site/; fi
           done
           touch _site/.nojekyll
-          printf '1.1.30\ncommit=%s\nbuild=%s\n' "$GITHUB_SHA" "$(date -u +%Y%m%dT%H%M%SZ)" > _site/build.txt
+          printf '1.1.31\ncommit=%s\nbuild=%s\n' "$GITHUB_SHA" "$(date -u +%Y%m%dT%H%M%SZ)" > _site/build.txt
       - uses: actions/configure-pages@v5
         with:
           enablement: true
