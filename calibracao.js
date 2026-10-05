@@ -13,10 +13,10 @@
     const yo = document.getElementById('offset-y-value');
     const mo = document.getElementById('matrix-scale-value');
     if (!x || !y || !m || !xo || !yo || !mo) return;
-    function read(key, fallback) { try { const v = Number(localStorage.getItem(key)); return Number.isFinite(v) ? v : fallback; } catch (_) { return fallback; } }
+    function read(key, fallback) { try { const raw=localStorage.getItem(key); if(raw===null||raw==='') return fallback; const v=Number(raw); return Number.isFinite(v) ? v : fallback; } catch (_) { return fallback; } }
     function clamp(input, value) { const min=Number(input.min), max=Number(input.max); return Math.min(max,Math.max(min,value)); }
     x.value=String(clamp(x,read('labelOffsetX-v1',0)));
-    y.value=String(clamp(y,read('labelOffsetY-v1',0)));
+    // v2: o deslocamento vertical agora atua na impressão; o padrão sobe o conteúdo 2 mm.\n    y.value=String(clamp(y,read('labelOffsetY-v2',-2)));
     m.value=String(clamp(m,read('matrixScale-v1',100)));
     function apply() {
       const offset=Number(x.value), offsetY=Number(y.value), size=Number(m.value);
@@ -27,7 +27,7 @@
       xo.textContent=offset.toFixed(1).replace('.',',')+' mm';
       yo.textContent=offsetY.toFixed(1).replace('.',',')+' mm';
       mo.textContent=size+'%';
-      try { localStorage.setItem('labelOffsetX-v1',String(offset)); localStorage.setItem('labelOffsetY-v1',String(offsetY)); localStorage.setItem('matrixScale-v1',String(size)); } catch (_) {}
+      try { localStorage.setItem('labelOffsetX-v1',String(offset)); localStorage.setItem('labelOffsetY-v2',String(offsetY)); localStorage.setItem('matrixScale-v1',String(size)); } catch (_) {}
     }
     x.addEventListener('input',apply); y.addEventListener('input',apply); m.addEventListener('input',apply);
     [['offset-left',x,-0.2],['offset-right',x,0.2],['offset-up',y,-0.2],['offset-down',y,0.2],['matrix-smaller',m,-5],['matrix-bigger',m,5]].forEach(function (entry) {

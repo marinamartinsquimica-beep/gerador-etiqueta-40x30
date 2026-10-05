@@ -1,0 +1,21 @@
+/* v1.1.22 — corrige a quebra entre fileiras e posiciona o conteúdo mais alto. */
+@media print {
+  .print-page {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+
+  /* Mais específico que a regra 40×30 que forçava quebra após cada fileira. */
+  html[data-label-size="40x30"] #print-area .print-page,
+  html[data-label-size="40x30"] #print-area .print-page:last-child {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+
+  /* Usa o ajuste vertical do controle na etiqueta impressa; padrão: 2 mm para cima. */
+  #print-area .print-copy .label-data,
+  #print-area .print-copy .print-qr {
+    position: relative !important;
+    top: var(--label-offset-y, -2mm) !important;
+  }
+}
