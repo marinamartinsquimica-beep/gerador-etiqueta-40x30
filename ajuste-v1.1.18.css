@@ -1,0 +1,26 @@
+/* v1.1.18 — impressão 40 x 30 mm: conteúdo centralizado e Data Matrix maior. */
+@media print {
+  html[data-label-size="40x30"] .print-copy {
+    justify-content: center !important;
+    padding-top: 1mm !important;
+    padding-bottom: 1mm !important;
+  }
+
+  html[data-label-size="40x30"] .print-copy .label-data,
+  html[data-label-size="40x30"] .print-copy .print-qr {
+    top: var(--label-offset-y, 0mm) !important;
+  }
+
+  html[data-label-size="40x30"] .print-copy .print-qr,
+  html[data-label-size="40x30"] .print-copy .print-qr canvas {
+    width: calc(30mm * var(--matrix-scale, 1)) !important;
+    height: calc(12mm * var(--matrix-scale, 1)) !important;
+    min-width: calc(30mm * var(--matrix-scale, 1)) !important;
+    min-height: calc(12mm * var(--matrix-scale, 1)) !important;
+    max-width: 36mm !important;
+    max-height: 14.4mm !important;
+    flex: 0 0 auto !important;
+    object-fit: contain !important;
+    image-rendering: pixelated !important;
+  }
+}
