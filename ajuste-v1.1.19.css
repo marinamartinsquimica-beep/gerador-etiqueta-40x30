@@ -1,0 +1,9 @@
+/* v1.1.19 — não inserir página em branco entre fileiras de etiquetas. */
+@media print {
+  /* Cada .print-page tem exatamente a altura de uma fileira física.
+     Deixe o navegador avançar naturalmente para a próxima página. */
+  .print-page {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+}
