@@ -1,7 +1,7 @@
-const CACHE_NAME = 'eme-etiqueta-v1.1.23';
+const CACHE_NAME = 'eme-etiqueta-v1.1.24';
 const ASSETS = [
   './', './index.html', './styles.css', './theme-raiar.css',
-  './label-sizes.css', './ajuste-v1.1.22.css?v=122', './app.js?v=123',
+  './label-sizes.css', './ajuste-v1.1.22.css?v=124', './app.js?v=123',
   './calibracao.js?v=123', './manifest.webmanifest', './version.json',
   './vendor/zxing.min.js', './vendor/LICENSE-zxing.txt',
   './icons/icon-192.png', './icons/icon-512.png'
