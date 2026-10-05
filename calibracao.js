@@ -16,7 +16,9 @@
     function read(key, fallback) { try { const raw=localStorage.getItem(key); if(raw===null||raw==='') return fallback; const v=Number(raw); return Number.isFinite(v) ? v : fallback; } catch (_) { return fallback; } }
     function clamp(input, value) { const min=Number(input.min), max=Number(input.max); return Math.min(max,Math.max(min,value)); }
     x.value=String(clamp(x,read('labelOffsetX-v1',0)));
-    // v2: o deslocamento vertical agora atua na impressão; o padrão sobe o conteúdo 2 mm.\n    y.value=String(clamp(y,read('labelOffsetY-v2',-2)));
+    const savedY=read('labelOffsetY-v2',-2);
+    // O padrão sobe 2 mm; ajusta o zero gravado pela versão com a linha comentada.
+    y.value=String(clamp(y,savedY===0?-2:savedY));
     m.value=String(clamp(m,read('matrixScale-v1',100)));
     function apply() {
       const offset=Number(x.value), offsetY=Number(y.value), size=Number(m.value);
