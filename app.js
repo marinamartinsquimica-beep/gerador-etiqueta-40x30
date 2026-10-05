@@ -4,7 +4,7 @@
    VERSÃO
    ========================================================= */
 
-const APP_VERSION = '1.1.19';
+const APP_VERSION = '1.1.20';
 
 const FONT_STORAGE_KEY = 'configEtiqueta-v1.1';
 const LABEL_SIZE_STORAGE_KEY = 'tamanhoEtiqueta-v1';
@@ -1551,137 +1551,131 @@ if (updateButton) {
 
 
 /* =========================================================
-   SERVICE WORKER
+   SERVICE WORKER E ATUALIZAÇÕES DO PWA
    ========================================================= */
 
-if (
-  'serviceWorker' in navigator &&
-  location.protocol !== 'file:'
-) {
+let serviceWorkerRegistration = null;
+let refreshing = false;
+let updateCheckInProgress = false;
+let lastUpdateCheck = 0;
 
-  let refreshing =
-    false;
+const updateBanner = document.querySelector('#update-banner');
+const updateMessage = document.querySelector('#update-message');
+const updateNowButton = document.querySelector('#update-button');
+const checkUpdateButton = document.querySelector('#check-update');
 
+function showUpdate(worker) {
+  waitingWorker = worker;
+  if (updateMessage) updateMessage.textContent = 'Uma nova versão está disponível.';
+  if (updateNowButton) updateNowButton.hidden = false;
+  if (updateBanner) updateBanner.hidden = false;
+}
 
-  navigator
-    .serviceWorker
-    .addEventListener(
-      'controllerchange',
-      () => {
+function showUpdateStatus(message) {
+  if (updateMessage) updateMessage.textContent = message;
+  if (updateNowButton) updateNowButton.hidden = true;
+  if (updateBanner) updateBanner.hidden = false;
+}
 
-        if (
-          refreshing
-        ) {
+function watchInstallingWorker(registration) {
+  const worker = registration.installing;
+  if (!worker) return;
 
-          return;
-
-        }
-
-
-        refreshing =
-          true;
-
-
-        location.reload();
-
-      }
-    );
-
-
-  window.addEventListener(
-    'load',
-    async () => {
-
-      try {
-
-        const registration =
-          await navigator
-            .serviceWorker
-            .register(
-              './sw.js'
-            );
-
-
-        if (
-          registration.waiting
-        ) {
-
-          showUpdate(
-            registration.waiting
-          );
-
-        }
-
-
-        registration.addEventListener(
-          'updatefound',
-          () => {
-
-            const worker =
-              registration
-                .installing;
-
-
-            if (!worker) {
-              return;
-            }
-
-
-            worker.addEventListener(
-              'statechange',
-              () => {
-
-                if (
-                  worker.state ===
-                    'installed' &&
-                  navigator
-                    .serviceWorker
-                    .controller
-                ) {
-
-                  showUpdate(
-                    worker
-                  );
-
-                }
-
-              }
-            );
-
-          }
-        );
-
-
-        /*
-          Verifica atualização
-          uma vez por hora.
-        */
-
-        setInterval(
-          () => {
-
-            registration.update();
-
-          },
-          60 *
-          60 *
-          1000
-        );
-
-      } catch (
-        error
-      ) {
-
-        console.error(
-          'Falha ao registrar o service worker:',
-          error
-        );
-
-      }
-
+  worker.addEventListener('statechange', () => {
+    if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+      showUpdate(worker);
     }
-  );
+  });
+}
 
+async function checkForAppUpdate(showCurrentVersion = false) {
+  if (!serviceWorkerRegistration || updateCheckInProgress) return;
+  if (!showCurrentVersion && Date.now() - lastUpdateCheck < 30000) return;
+
+  updateCheckInProgress = true;
+  lastUpdateCheck = Date.now();
+  if (checkUpdateButton) {
+    checkUpdateButton.disabled = true;
+    checkUpdateButton.textContent = 'VERIFICANDO...';
+  }
+
+  try {
+    if (serviceWorkerRegistration.waiting) {
+      showUpdate(serviceWorkerRegistration.waiting);
+      return;
+    }
+
+    await serviceWorkerRegistration.update();
+
+    if (serviceWorkerRegistration.waiting) {
+      showUpdate(serviceWorkerRegistration.waiting);
+    } else if (serviceWorkerRegistration.installing) {
+      if (showCurrentVersion) showUpdateStatus('Nova versão encontrada. Baixando atualização...');
+      watchInstallingWorker(serviceWorkerRegistration);
+    } else if (showCurrentVersion) {
+      showUpdateStatus('Este app já está atualizado.');
+      window.setTimeout(() => {
+        if (updateMessage?.textContent === 'Este app já está atualizado.' && updateBanner) {
+          updateBanner.hidden = true;
+        }
+      }, 5000);
+    }
+  } catch (error) {
+    console.error('Falha ao verificar atualização:', error);
+    if (showCurrentVersion) showUpdateStatus('Não foi possível verificar. Confira a conexão e tente novamente.');
+  } finally {
+    updateCheckInProgress = false;
+    if (checkUpdateButton) {
+      checkUpdateButton.disabled = false;
+      checkUpdateButton.textContent = 'VERIFICAR ATUALIZAÇÃO';
+    }
+  }
+}
+
+if (updateNowButton) {
+  updateNowButton.addEventListener('click', () => {
+    if (waitingWorker) waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+  });
+}
+
+if (checkUpdateButton) {
+  checkUpdateButton.addEventListener('click', () => checkForAppUpdate(true));
+}
+
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshing) return;
+    refreshing = true;
+    location.reload();
+  });
+
+  window.addEventListener('load', async () => {
+    try {
+      serviceWorkerRegistration = await navigator.serviceWorker.register('./sw.js', {
+        updateViaCache: 'none'
+      });
+
+      serviceWorkerRegistration.addEventListener('updatefound', () => {
+        watchInstallingWorker(serviceWorkerRegistration);
+      });
+
+      if (serviceWorkerRegistration.waiting) showUpdate(serviceWorkerRegistration.waiting);
+      if (serviceWorkerRegistration.installing) watchInstallingWorker(serviceWorkerRegistration);
+
+      // Busca uma versão nova assim que o app termina de carregar.
+      await checkForAppUpdate();
+
+      // Confere novamente ao voltar ao app, ao recuperar a conexão e periodicamente.
+      window.addEventListener('focus', () => checkForAppUpdate());
+      window.addEventListener('online', () => checkForAppUpdate());
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') checkForAppUpdate();
+      });
+      window.setInterval(() => checkForAppUpdate(), 5 * 60 * 1000);
+    } catch (error) {
+      console.error('Falha ao registrar o service worker:', error);
+    }
+  });
 }
 
 
