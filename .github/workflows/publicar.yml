@@ -18,11 +18,22 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Montar pacote limpo do site
+        shell: bash
+        run: |
+          rm -rf _site
+          mkdir _site
+          find . -maxdepth 1 -type f ! -name '.gitignore' -exec cp {} _site/ \;
+          for dir in icons vendor; do
+            if [ -d "$dir" ]; then cp -R "$dir" _site/; fi
+          done
+          touch _site/.nojekyll
+          printf '1.1.30\ncommit=%s\nbuild=%s\n' "$GITHUB_SHA" "$(date -u +%Y%m%dT%H%M%SZ)" > _site/build.txt
       - uses: actions/configure-pages@v5
         with:
           enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
