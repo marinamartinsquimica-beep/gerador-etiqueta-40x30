@@ -1,5 +1,22 @@
-const CACHE_NAME='eme-etiqueta-v1.1.29';
-self.addEventListener('install',()=>self.skipWaiting());
-self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(names=>Promise.all(names.map(name=>caches.delete(name)))).then(()=>self.clients.claim()));});
-self.addEventListener('fetch',event=>{if(event.request.method!=='GET')return;event.respondWith(fetch(event.request,{cache:'no-store'}).then(response=>{if(response&&response.status===200&&response.type!=='opaque'){const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put(event.request,copy));}return response;}).catch(()=>caches.match(event.request)));});
-self.addEventListener('message',event=>{if(event.data&&event.data.type==='SKIP_WAITING')self.skipWaiting();});
+/*
+ * Recovery service worker — v1.1.30
+ *
+ * Esta versão existe somente para retirar o Service Worker legado que
+ * manteve alguns navegadores presos em versões antigas do aplicativo.
+ * Não intercepta requisições e não cria novos caches.
+ */
+self.addEventListener('install', () => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil((async () => {
+    const names = await caches.keys();
+    await Promise.all(names.map(name => caches.delete(name)));
+    await self.registration.unregister();
+    const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const client of clients) {
+      client.postMessage({ type: 'EME_SW_REMOVED', version: '1.1.30' });
+    }
+  })());
+});
