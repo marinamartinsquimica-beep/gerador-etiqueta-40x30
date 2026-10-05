@@ -1,0 +1,18 @@
+/* v1.1.21 — anula a quebra forçada da regra específica do tamanho 40 × 30 mm. */
+@media print {
+  .print-page {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+
+  /* Esta regra é mais específica que a regra que forçava uma página por fileira. */
+  html[data-label-size="40x30"] #print-area .print-page {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+
+  html[data-label-size="40x30"] #print-area .print-page:last-child {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+}
