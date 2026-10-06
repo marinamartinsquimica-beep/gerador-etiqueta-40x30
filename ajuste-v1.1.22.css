@@ -4,6 +4,18 @@
 #app-version { font-size: 0; }
 #app-version::after { content: '1.1.24'; font-size: initial; }
 
+/* Ajuste exclusivamente visual da prévia 40x30.
+   Não participa da impressão física. */
+@media screen {
+  html[data-label-size="40x30"] .screen-label .label-lot strong,
+  html[data-label-size="40x30"] .screen-label .lot-line1 {
+    font-size: 34px !important;
+    letter-spacing: -1.4px !important;
+    max-width: 100% !important;
+    white-space: nowrap !important;
+  }
+}
+
 @media print {
   html[data-label-size="40x30"],
   html[data-label-size="40x30"] body,
