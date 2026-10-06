@@ -7,10 +7,15 @@
 /* Ajuste exclusivamente visual da prévia 40x30.
    Não participa da impressão física. */
 @media screen {
+  html[data-label-size="40x30"] .screen-label .label-sku strong {
+    font-size: 42px !important;
+    line-height: 1 !important;
+  }
+
   html[data-label-size="40x30"] .screen-label .label-lot strong,
   html[data-label-size="40x30"] .screen-label .lot-line1 {
-    font-size: 27px !important;
-    letter-spacing: -1.2px !important;
+    font-size: 31px !important;
+    letter-spacing: -1.5px !important;
     max-width: 100% !important;
     white-space: nowrap !important;
   }
