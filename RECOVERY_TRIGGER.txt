@@ -1,0 +1,2 @@
+Restauracao emergencial do gerador de etiquetas.
+Base funcional: 4fe474c8.
