@@ -4,7 +4,7 @@
    VERSÃO
    ========================================================= */
 
-const APP_VERSION = '1.1.30';
+const APP_VERSION = '1.1.31';
 
 const FONT_STORAGE_KEY = 'configEtiqueta-v1.1';
 const LABEL_SIZE_STORAGE_KEY = 'tamanhoEtiqueta-v1';
@@ -23,6 +23,18 @@ function refreshLabelSize() {
   document.querySelector('#printer-size').textContent = `${cfg.width} × ${cfg.height} mm`;
   document.querySelector('#printer-count').textContent = `${cfg.perRow} etiquetas por fileira`;
   document.querySelector('#quantity-hint').textContent = `Exemplo: 30 etiquetas = ${Math.ceil(30 / cfg.perRow)} fileiras de ${cfg.perRow} etiquetas.`;
+  // Migração única: somente 40x30, preserva fontes maiores já escolhidas.
+  if (selectedLabelSize === '40x30') {
+    let expandir = false;
+    try { expandir = localStorage.getItem('fontes40x30-ocupacao-v131') !== 'ok'; }
+    catch (_) { expandir = true; }
+    if (expandir) {
+      fontSettings.sku = Math.max(fontSettings.sku, 21);
+      fontSettings.lotValue = Math.max(fontSettings.lotValue, 20);
+      applyFontSettings();
+      try { localStorage.setItem('fontes40x30-ocupacao-v131', 'ok'); } catch (_) {}
+    }
+  }
   const clamped = Object.entries(FONT_RULES).some(([key]) => { if (fontSettings[key] > fontMax(key)) { fontSettings[key] = fontMax(key); return true; } return false; });
   if (clamped) applyFontSettings();
   updateLabel();
@@ -458,6 +470,10 @@ if (resetFontsButton) {
       }
 
 
+      if (selectedLabelSize === '40x30') {
+        fontSettings.sku = 21;
+        fontSettings.lotValue = 20;
+      }
       applyFontSettings();
 
       updateLabel();
