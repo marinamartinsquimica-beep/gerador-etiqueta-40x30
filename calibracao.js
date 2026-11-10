@@ -17,7 +17,7 @@
     function clamp(input, value) { const min=Number(input.min), max=Number(input.max); return Math.min(max,Math.max(min,value)); }
     x.value=String(clamp(x,read('labelOffsetX-v1',0)));
     const savedY=read('labelOffsetY-v2',-1);
-    // Ajuste v1.1.24: sobe o conjunto inteiro mais 2 mm. Migra o padrão anterior (-2 mm) para -4 mm.
+    // Mantém calibração vertical existente; migra somente valores anteriores de fábrica.
     y.value=String(clamp(y,([-6,-4,-2,0].includes(savedY))?-1:savedY));
     m.value=String(clamp(m,read('matrixScale-v1',100)));
     function apply() {
