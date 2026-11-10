@@ -2,7 +2,7 @@
 
 /* Exibe a versão publicada mesmo em clientes cujo app.js anterior ainda informa 1.1.23. */
 #app-version { font-size: 0; }
-#app-version::after { content: '1.1.30'; font-size: initial; }
+#app-version::after { content: '1.1.31'; font-size: initial; }
 
 /* Ajuste exclusivamente visual da prévia 40x30.
    Não participa da impressão física. */
@@ -95,5 +95,23 @@
 @media print {
   html[data-label-size="40x30"] #print-area .print-copy .print-qr {
     top: calc(var(--label-offset-y, -1mm) - 3mm) !important;
+  }
+}
+
+/* v1.1.31 — 40x30: ampliar SKU/lote sem deslocar o Data Matrix.
+   Mantém caixa de texto de 15 mm, avanço, calibração e código intactos. */
+@media print {
+  html[data-label-size="40x30"] #print-area .print-copy .label-data {
+    justify-content: flex-start !important;
+    padding-top: 0.35mm !important;
+  }
+  html[data-label-size="40x30"] #print-area .print-copy .label-sku strong,
+  html[data-label-size="40x30"] #print-area .print-copy .lot-line1 {
+    line-height: 0.78 !important;
+  }
+  html[data-label-size="40x30"] #print-area .print-copy .label-lot,
+  html[data-label-size="40x30"] #print-area .print-copy .label-lot strong {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
   }
 }
