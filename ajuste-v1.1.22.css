@@ -2,7 +2,7 @@
 
 /* Exibe a versão publicada mesmo em clientes cujo app.js anterior ainda informa 1.1.23. */
 #app-version { font-size: 0; }
-#app-version::after { content: '1.1.29'; font-size: initial; }
+#app-version::after { content: '1.1.30'; font-size: initial; }
 
 /* Ajuste exclusivamente visual da prévia 40x30.
    Não participa da impressão física. */
@@ -87,5 +87,13 @@
   html[data-label-size="40x30"] #print-area .print-copy .label-lot {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
+  }
+}
+
+/* v1.1.30 — sobe exclusivamente o Data Matrix 3 mm em relação ao texto.
+   A posição relativa não altera o fluxo, as fontes ou o tamanho do código. */
+@media print {
+  html[data-label-size="40x30"] #print-area .print-copy .print-qr {
+    top: calc(var(--label-offset-y, -1mm) - 3mm) !important;
   }
 }
