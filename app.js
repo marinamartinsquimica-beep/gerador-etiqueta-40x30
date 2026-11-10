@@ -4,7 +4,7 @@
    VERSÃO
    ========================================================= */
 
-const APP_VERSION = '1.1.28';
+const APP_VERSION = '1.1.29';
 
 const FONT_STORAGE_KEY = 'configEtiqueta-v1.1';
 const LABEL_SIZE_STORAGE_KEY = 'tamanhoEtiqueta-v1';
@@ -304,6 +304,18 @@ function restoreSavedFontSettings() {
 
 restoreSavedFontSettings();
 
+// Migração única do padrão aprovado para 40x30; ajustes posteriores do operador são preservados.
+if (selectedLabelSize === '40x30') {
+  try {
+    if (localStorage.getItem('fontes40x30-padrao-v129') !== 'ok') {
+      fontSettings.sku = 18.2;
+      fontSettings.lotLabel = 6.4;
+      fontSettings.lotValue = 18.1;
+      localStorage.setItem(FONT_STORAGE_KEY, JSON.stringify(fontSettings));
+      localStorage.setItem('fontes40x30-padrao-v129', 'ok');
+    }
+  } catch (_) {}
+}
 applyFontSettings(false);
 
 
