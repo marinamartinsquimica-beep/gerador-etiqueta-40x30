@@ -39,6 +39,17 @@
       });
     });
     apply();
+    function applyPreset40() {
+      if (document.documentElement.dataset.labelSize !== '40x30') return;
+      let needs = true;
+      try { needs = localStorage.getItem('calibracao40x30-foto-v133') !== 'ok'; } catch (_) {}
+      if (!needs) return;
+      x.value='2.4';y.value='-3.6';m.value='120';
+      apply();
+      try { localStorage.setItem('calibracao40x30-foto-v133','ok'); } catch (_) {}
+    }
+    applyPreset40();
+    document.getElementById('label-size')?.addEventListener('change',applyPreset40);
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start,{once:true}); else start();
 })();
