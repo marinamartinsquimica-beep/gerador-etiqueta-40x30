@@ -1,0 +1,12 @@
+/* Cadastro de lotes e aviários: somente interface, sem efeito na impressão. */
+@media screen {
+ #lot-part-two[readonly]{background:#eff9f4;color:#16683e;font-weight:900;cursor:default}
+ #aviary-manager .aviary-form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+ #aviary-manager .aviary-form-row label{display:block}
+ #aviary-manager .aviary-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #dce8f1}
+ #aviary-manager .aviary-row span{font-weight:700;font-size:.85rem}
+ #aviary-manager .aviary-row button{min-height:32px;border:1px solid #d69d9d;border-radius:7px;padding:4px 9px;background:#fff7f7;color:#882c2c}
+ #aviary-manager #aviary-status{font-size:.8rem;font-weight:700}
+ #aviary-manager #aviary-list{max-height:350px;overflow-y:auto}
+ @media(max-width:480px){#aviary-manager .aviary-form-row{grid-template-columns:1fr 1fr}}
+}
